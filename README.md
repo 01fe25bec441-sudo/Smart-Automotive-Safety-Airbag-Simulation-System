@@ -1,114 +1,130 @@
-# 🚗 Smart-Automotive-Airbag-System
+# Smart Automotive Airbag System
 
-An STM32-based embedded system that demonstrates crash detection, passenger detection, decision-making, and safe airbag deployment simulation.
+## 📌 Short Description
 
-##  Overview
+The **Smart Automotive Safety & Airbag Simulation System** is a safe educational embedded-systems prototype developed using the **STM32F103C8T6 Blue Pill**.
 
-Real automotive airbag systems use complex and safety-critical hardware that cannot be safely tested in an academic environment.
+The system demonstrates the basic concept of an automotive safety controller using the sequence:
 
-This project develops a low-cost and reusable automotive safety simulation platform using an STM32F103C8 microcontroller. The system detects simulated impacts using an MPU6050, detects passenger presence using a load cell and HX711, and demonstrates the safety response through a servo-operated airbag compartment along with visual and audible alerts.
+> **SENSE → DECIDE → ACT**
 
-> **Note:** This is an educational simulation and does not replicate or replace a real automotive airbag system.
+A **5 kg load cell with an HX711 amplifier** is used to detect whether a passenger is present. An **MPU6050 accelerometer/gyroscope** monitors acceleration and detects simulated impact conditions using experimentally configurable thresholds.
+
+When an impact condition is detected, the STM32 evaluates the passenger-presence condition and activates a **safe visual airbag deployment mechanism using an SG90 servo motor**.
+
+A **16×2 I²C LCD** displays system status, an active buzzer provides an audible warning, and red/green LEDs indicate system states. A push button is provided to reset the system after a simulated deployment.
+
+A small **5 V DC fan** may be used only to create a visual fabric-movement effect during demonstration. It is **not an airbag inflator**.
+
+> ⚠️ **Educational Safety Notice:**  
+> This project is an educational simulation only. It is not a real automotive airbag controller and must not be used in a real vehicle or connected to an actual airbag system. The servo and lightweight fabric mechanism are intended only to demonstrate the visual concept of airbag deployment.
 
 ---
 
-##  Objectives
+# 1. Problem Statement
 
-- Detect simulated impacts using the MPU6050.
-- Detect passenger presence using a load cell.
-- Process sensor data using the STM32F103C8.
-- Implement threshold-based crash detection.
-- Demonstrate airbag deployment using an SG90 servo.
+Automotive safety systems must rapidly detect abnormal vehicle conditions and respond appropriately. Real automotive airbag systems are highly specialized safety-critical systems involving dedicated sensors, validated algorithms, redundant electronics, and controlled deployment mechanisms.
+
+For educational purposes, it is useful to develop a low-cost prototype that demonstrates the fundamental embedded-system concept without using pyrotechnic devices or real airbags.
+
+The problem addressed by this project is:
+
+> **How can a microcontroller-based system sense passenger presence and simulated impact conditions, make a safety decision, and activate a safe visual response using commonly available embedded-system components?**
+
+The proposed solution uses an STM32 microcontroller together with load-cell sensing, inertial sensing, display, indicators, and a servo-controlled mechanical mechanism.
+
+---
+
+# 2. Objectives
+
+The main objectives are:
+
+- Develop an STM32-based automotive safety simulation.
+- Detect passenger presence using a load cell and HX711 amplifier.
+- Measure acceleration using an MPU6050.
+- Detect simulated impact conditions using configurable thresholds.
+- Implement a simple finite-state machine.
+- Demonstrate the SENSE → DECIDE → ACT architecture.
+- Control an SG90 servo using PWM.
 - Display system status using a 16×2 I²C LCD.
-- Provide visual and audible alerts.
-- Create a safe, reusable and low-cost automotive safety demonstration platform.
+- Provide audible warning using a buzzer.
+- Provide visual status indication using red and green LEDs.
+- Implement a manual reset mechanism.
+- Develop a modular Embedded C firmware architecture.
+- Demonstrate hardware-software integration.
 
 ---
 
-##  System Concept
+# 3. Features
 
-The system follows a simple:
-
-**SENSE → DECIDE → ACT**
-
-### SENSE
-- MPU6050 → Impact detection
-- Load Cell + HX711 → Passenger detection
-
-### DECIDE
-- STM32F103C8 processes sensor data.
-- Threshold-based logic determines the system state.
-
-### ACT
-- SG90 Servo → Opens airbag simulation compartment
-- Buzzer → Warning alert
-- Red LED → Crash indication
-- LCD → System status
-- DC Fan → Visual fabric movement effect
-
----
-
-## 🧩 Hardware Components
-
-| Component | Purpose |
-|---|---|
-| STM32F103C8 | Main microcontroller |
-| MPU6050 | Accelerometer/Gyroscope for impact sensing |
-| Load Cell | Passenger/occupant detection |
-| HX711 | Load-cell signal interface |
-| SG90 Servo | Airbag compartment mechanism |
-| 16×2 I²C LCD | Status display |
-| Active Buzzer | Audible alert |
-| Red LED | Crash indication |
-| Green LED | Normal status |
-| Push Button | System reset |
-| 5V DC Fan | Visual fabric movement effect |
+- STM32F103C8T6-based control system
+- MPU6050 accelerometer/gyroscope interface
+- HX711 load-cell interface
+- Passenger-presence detection
+- Configurable passenger threshold
+- Configurable impact threshold
+- 16×2 I²C LCD
+- SG90 servo-based visual deployment
+- Active buzzer
+- Red and green LED indicators
+- Push-button reset
+- PWM-based servo control
+- I²C sensor communication
+- GPIO-based peripheral control
+- Optional UART debugging
+- Finite-state-machine control
+- Safe educational mechanical demonstration
 
 ---
 
-## Communication & Control
-
-| Interface | Component |
-|---|---|
-| I²C | MPU6050 |
-| I²C | 16×2 LCD |
-| GPIO | Buzzer |
-| GPIO | LEDs |
-| GPIO | Reset Button |
-| PWM | SG90 Servo |
-| GPIO | HX711 |
-
----
-
-##  Working Principle
-
-### 1. System Initialization
-
-The STM32 initializes the sensors and peripherals.
-
-### 2. Passenger Detection
-
-The load cell measures the load applied to the model seat.
-
-If the measured load exceeds the configured threshold:
-
-`Passenger Present = YES`
-
-### 3. Impact Detection
-
-The MPU6050 continuously measures acceleration.
-
-If the measured acceleration exceeds the configured threshold:
-
-`Impact Detected = YES`
-
-### 4. Decision Making
-
-The STM32 evaluates the sensor conditions.
+# 4. System Architecture
 
 ```text
-Passenger Present
-        +
-Impact Detected
-        ↓
-Safety Response
+                    ┌─────────────────────┐
+                    │       Passenger     │
+                    │       / Load        │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                        ┌─────────────┐
+                        │  Load Cell  │
+                        └──────┬──────┘
+                               │
+                               ▼
+                         ┌──────────┐
+                         │  HX711   │
+                         └────┬─────┘
+                              │
+                              │
+                              ▼
+                    ┌────────────────────┐
+                    │                    │
+                    │      STM32         │
+                    │     F103C8T6        │
+                    │                    │
+                    │  Decision Logic    │
+                    │       + FSM        │
+                    └───────┬────────────┘
+                            │
+              ┌─────────────┼──────────────┐
+              │             │              │
+              ▼             ▼              ▼
+         ┌─────────┐   ┌─────────┐   ┌────────────┐
+         │ MPU6050 │   │  LCD    │   │ Indicators │
+         │         │   │ 16×2    │   │ LED/Buzzer │
+         └─────────┘   └─────────┘   └────────────┘
+                            │
+                            │
+                            ▼
+                     ┌────────────┐
+                     │ SG90 Servo │
+                     └─────┬──────┘
+                           │
+                           ▼
+                  Safe Visual Deployment
+                        Mechanism
+
+                       5 V DC Fan
+                           │
+                           ▼
+                  Fabric Movement Effect
